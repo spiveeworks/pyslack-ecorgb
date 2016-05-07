@@ -8,6 +8,7 @@ msg_list = [
     (0, 0, "PLAY spawn"), 1,
     (1, 1, "PLAY spawn"), 1,
     (0, 0, "MEET as: ALICE"), 1,
+    (0, 0, "TELL bOb, as: aLiCe: Die bob!"), 1,
     (0, 0, "CAP bOb, as: aLiCe"), 1,
     (1, 1, "am I dead yet?"), 5,
     (1, 1, "PLAY abandon"), 1,

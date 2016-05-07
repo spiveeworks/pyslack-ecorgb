@@ -74,7 +74,7 @@ class Perspective:
                             or text[len(name)] not in Perspective.invalid_separator
                         )
                     ):
-                        otext += name.join('{}')
+                        otext += name.join(('*{','}*'))
                         omap[name] = id
                         text = text[len(name):]
                         found = True
@@ -104,6 +104,7 @@ class BleedEvent:
         e.capping = capping
         e.capping_id = capping_id
         e.abort = False
+        capping.hostage = capped
         capping.char.hostage_bleed = e
         
     def execute(e, game, time):
@@ -118,6 +119,12 @@ class BleedEvent:
             'taker': e.capping,
             'taker_id': e.capping_id,
         })
+    
+    def abort(e, game):
+        abort = True
+        game.players.append(e.capped)
+        e.capping.char.hostage = None
+        e.capping.char.hostage_bleed = None
         
 
 def find_player(game, pid):
@@ -132,10 +139,10 @@ def cap(game, time, capping_id, capped_id):
     capped_p = find_player(game, capped_id)
     capped = capped_p.char
     if capping.hostage: return
-    if capped.hostage: capped.release_hostage()
-    capping.hostage = capped
+    if capped.hostage: 
+        capped.hostage_bleed.abort()
     del game.players[game.players.index(capped_p)]
-    game.queue_event(time + timedelta(seconds=3), BleedEvent(capped_p, capping_p, capped_id, capping_id))
+    game.queue_event(time + timedelta(minutes=10), BleedEvent(capped_p, capping_p, capped_id, capping_id))
     game.post({
         'type': 'bleed_begin',
         'hostage': capped_p,

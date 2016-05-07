@@ -36,7 +36,7 @@ def get_id_or_complain(channel, player, name):
         pb_send(channel, "\"{name}\" is not the name of anyone you know.".format(name=name))
 
 def complain_if_not(channel, player, id):
-    if id not in player.char:
+    if idt.find_player(game, id) is not player:
         pb_send(channel, "You are not *{name}*... yet.".format(name=player.per.ids[id]))
         return True
     return False
@@ -107,6 +107,19 @@ def CAP(time, user, channel, text, **message):
     if complain_if_not(channel, player, capping): return
     idt.cap(game, time, capping, capped)
     
+def TELL(time, user, channel, text, **message):
+    if (user, channel) not in users: return
+    player = users[user, channel]
+    target_name, sep, text = text[len('TELL '):].partition(', as: ')
+    tell_as_name, sep, text = text.partition(': ')
+    target = get_id_or_complain(channel, player, target_name)
+    tell_as = get_id_or_complain(channel, player, tell_as_name)
+    if target is None or tell_as is None: return
+    if complain_if_not(channel, player, tell_as): return
+    target_p = idt.find_player(game, target)
+    target_user = find_user(target_p)
+    text = target_p.per.alias_up(*player.per.alias_down(tell_as_name + ': ' + text))
+    if target_user: pb_send(target_user[1], text)
     
     
 
@@ -116,7 +129,8 @@ functions = {
     (r'PLAY spawn', PLAY_spawn),
     (r'PLAY abandon', PLAY_abandon),
     (r'MEET as: .+', MEET),
-    (r'CAP .+\, as: .+', CAP),
+    (r'CAP .+, as: .+', CAP),
+    (r'TELL .+, as: .+', TELL),
 }
 
 output_format = {
