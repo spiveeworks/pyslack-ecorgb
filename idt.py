@@ -40,9 +40,9 @@ class GameWorld:
                 for pid in player.char.hostage.pids:
                     yield pid
                 
-
+import string
 class Perspective:
-    invalid_separator = ''.join([chr(x + ord('A')) + chr(x + ord('a')) for x in range(26)]) + ''.join([str(x) for x in range(10)])
+    invalid_separator = string.ascii_letters + string.digits
     valid_name = ' -' + invalid_separator
     
     def __init__(self, name_gen):
@@ -104,7 +104,7 @@ class BleedEvent:
         e.capping = capping
         e.capping_id = capping_id
         e.abort = False
-        capping.hostage = capped
+        capping.char.hostage = capped.char
         capping.char.hostage_bleed = e
         
     def execute(e, game, time):

@@ -118,8 +118,26 @@ def TELL(time, user, channel, text, **message):
     if complain_if_not(channel, player, tell_as): return
     target_p = idt.find_player(game, target)
     target_user = find_user(target_p)
-    text = target_p.per.alias_up(*player.per.alias_down(tell_as_name + ': ' + text))
+    text = tell_as_name + ' (to ' + target_name + '): ' + text
+    text = target_p.per.alias_up(*player.per.alias_down(text))
     if target_user: pb_send(target_user[1], text)
+    
+def ALIASES(time, user, channel, **message):
+    if (user, channel) not in users: return
+    player = users[user, channel]
+    output = ['Your aliases:']
+    for id in player.char.pids:
+        output.append('    *' + player.per.ids[id] + '*')
+    if player.char.hostage:
+        output.append('Your hostage\'s aliases:')
+        for id in player.char.hostage.pids:
+            output.append('    *' + player.per.ids[id] + '*')
+    output.append
+    names_left = ['    *' + name + '*' for id, name in player.per.ids.items() if id not in player.char]
+    if names_left:
+        output.append('Your peers:')
+        output.extend(names_left)
+    pb_send(channel, '\n'.join(output))
     
     
 
@@ -131,6 +149,7 @@ functions = {
     (r'MEET as: .+', MEET),
     (r'CAP .+, as: .+', CAP),
     (r'TELL .+, as: .+', TELL),
+    (r'ALIASES', ALIASES),
 }
 
 output_format = {
